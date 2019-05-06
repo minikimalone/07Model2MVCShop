@@ -25,7 +25,8 @@ function fncAddProduct(){
 	var detail = document.detailForm.prodDetail.value;
 	var manuDate = document.detailForm.manuDate.value;
 	var price = document.detailForm.price.value;
-
+	var amount = document.detailForm.amount.value
+	
 	if(name == null || name.length<1){
 		alert("상품명은 반드시 입력하여야 합니다.");
 		return;
@@ -40,6 +41,10 @@ function fncAddProduct(){
 	}
 	if(price == null || price.length<1){
 		alert("가격은 반드시 입력하셔야 합니다.");
+		return;
+	}
+	if(amount == null || amount.length<1){
+		alert("수량은 반드시 입력하셔야 합니다.");
 		return;
 	}
 		

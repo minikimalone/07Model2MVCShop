@@ -1,7 +1,9 @@
 package com.model2.mvc.service.purchase.impl;
 
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.ibatis.session.SqlSession;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,7 +16,7 @@ import com.model2.mvc.service.purchase.PurchaseDao;
 
 
 
-//==> È¸¿ø°ü¸® DAO CRUD ±¸Çö
+//==> íšŒì›ê´€ë¦¬ DAO CRUD êµ¬í˜„
 @Repository("purchaseDaoImpl")
 public class PurchaseDaoImpl implements PurchaseDao{
 	
@@ -55,7 +57,10 @@ public class PurchaseDaoImpl implements PurchaseDao{
 	
 
 	public List<Purchase> getPurchaseList(Search search,String userId) throws Exception{
-	return sqlSession.selectList("PurchaseMapper.getPurchaseList",search);
+		Map<String, Object> map = new HashMap<String, Object>();
+		map.put("search", search );
+		map.put("userId", userId);
+		return sqlSession.selectList("PurchaseMapper.getPurchaseList",map);
 	}
 
 	public List<Purchase> getSaleList(Search search) throws Exception{
@@ -63,9 +68,11 @@ public class PurchaseDaoImpl implements PurchaseDao{
 	}
 	
 	
-	// °Ô½ÃÆÇ Page Ã³¸®¸¦ À§ÇÑ ÀüÃ¼ Row(totalCount)  return
-		public int getTotalCount(Search search) throws Exception {
-			return sqlSession.selectOne("PurchaseMapper.getTotalCount", search);
-		}
-	}
+	// ê²Œì‹œíŒ Page ì²˜ë¦¬ë¥¼ ìœ„í•œ ì „ì²´ Row(totalCount)  return
 	
+	public int getTotalCount(String userId) throws Exception {
+
+		return sqlSession.selectOne("PurchaseMapper.getTotalCount", userId);
+	}
+
+}

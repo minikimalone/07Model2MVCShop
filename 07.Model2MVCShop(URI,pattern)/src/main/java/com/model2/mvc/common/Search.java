@@ -1,29 +1,41 @@
 package com.model2.mvc.common;
 
 
-//==>¸®½ºÆ®È­¸éÀ» ¸ðµ¨¸µ(Ãß»óÈ­/Ä¸½¶È­)ÇÑ Bean 
 public class Search {
 	
 	///Field
 	private int currentPage;
 	private String searchCondition;
 	private String searchKeyword;
+	private String menu;
 	private int pageSize;
-	//==> ¸®½ºÆ®È­¸é currentPage¿¡ ÇØ´çÇÏ´Â È¸¿øÁ¤º¸¸¦ ROWNUM »ç¿ë SELECT À§ÇØ Ãß°¡µÈ Field 
-	//==> UserMapper.xml ÀÇ 
-	//==> <select  id="getUserList"  parameterType="search"	resultMap="userSelectMap">
-	//==> ÂüÁ¶
-	private int endRowNum;
-	private int startRowNum;
+	
+	//==> ë¦¬ìŠ¤íŠ¸í™”ë©´ currentPageì— í•´ë‹¹í•˜ëŠ” íšŒì›ì •ë³´ë¥¼ ROWNUM ì‚¬ìš© SELECT ìœ„í•´ ì¶”ê°€ëœ Field 
+		//==> UserMapper.xml ì˜ 
+		//==> <select  id="getUserList"  parameterType="search"	resultMap="userSelectMap">
+		//==> ì°¸ì¡°
+		private int endRowNum;
+		private int startRowNum;
+	
 	
 	///Constructor
 	public Search() {
 	}
 	
 	///Method
+	public String getMenu() {
+		return menu;
+	}
+
+	public void setMenu(String menu) {
+		this.menu = menu;
+	}
+
+	
 	public int getPageSize() {
 		return pageSize;
 	}
+	
 	public void setPageSize(int paseSize) {
 		this.pageSize = paseSize;
 	}
@@ -31,8 +43,8 @@ public class Search {
 	public int getCurrentPage() {
 		return currentPage;
 	}
-	public void setCurrentPage(int currentPage) {
-		this.currentPage = currentPage;
+	public void setCurrentPage(int curruntPage) {
+		this.currentPage = curruntPage;
 	}
 
 	public String getSearchCondition() {
@@ -41,28 +53,28 @@ public class Search {
 	public void setSearchCondition(String searchCondition) {
 		this.searchCondition = searchCondition;
 	}
-	
 	public String getSearchKeyword() {
 		return searchKeyword;
 	}
 	public void setSearchKeyword(String searchKeyword) {
 		this.searchKeyword = searchKeyword;
 	}
-	
-	//==> Select Query ½Ã ROWNUM ¸¶Áö¸· °ª 
-	public int getEndRowNum() {
-		return getCurrentPage()*getPageSize();
-	}
-	//==> Select Query ½Ã ROWNUM ½ÃÀÛ °ª
-	public int getStartRowNum() {
-		return (getCurrentPage()-1)*getPageSize()+1;
-	}
 
-	@Override
-	public String toString() {
-		return "Search [currentPage=" + currentPage + ", searchCondition="
-				+ searchCondition + ", searchKeyword=" + searchKeyword
-				+ ", pageSize=" + pageSize + ", endRowNum=" + endRowNum
-				+ ", startRowNum=" + startRowNum + "]";
-	}
+	//==> Select Query ì‹œ ROWNUM ë§ˆì§€ë§‰ ê°’ 
+		public int getEndRowNum() {
+			return getCurrentPage()*getPageSize();
+		}
+		//==> Select Query ì‹œ ROWNUM ì‹œìž‘ ê°’
+		public int getStartRowNum() {
+			return (getCurrentPage()-1)*getPageSize()+1;
+		}
+
+		@Override
+		public String toString() {
+			return "Search [currentPage=" + currentPage + ", searchCondition="
+					+ searchCondition + ", searchKeyword=" + searchKeyword
+					+ ", pageSize=" + pageSize + ", menu=" + menu+ ", endRowNum=" + endRowNum
+					+ ", startRowNum=" + startRowNum + "]";
+		}
+	
 }

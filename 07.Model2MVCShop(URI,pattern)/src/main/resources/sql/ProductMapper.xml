@@ -15,15 +15,21 @@
 		<result property="price" 				column="price" 					jdbcType="NUMERIC" />
 		<result property="fileName" 				column="image_file" 					jdbcType="VARCHAR" />
 		<result property="regDate" 			column="reg_date" 		jdbcType="DATE" />
-	</resultMap>
+		<result property="prodTranCode" column="tran_status_code" jdbcType="VARCHAR"/>
+		
+		</resultMap>
+	
+	
 	
 	<!-- SQL : INSERT -->
 	<insert 	id="addProduct"		parameterType="product" >
 	 	INSERT
-		INTO product (prod_no, prod_name , prod_detail , manufacture_day , price, image_file, reg_date) 
+		INTO product (prod_no, prod_name , prod_detail , manufacture_day , price, image_file, reg_date, tran_status_code) 
 		VALUES	 (seq_product_prod_no.nextval, #{prodName} , #{prodDetail} , #{manuDate:VARCHAR} , 
-							#{price} , #{fileName:VARCHAR} , SYSDATE )
+							#{price} , #{fileName:VARCHAR} , SYSDATE, '0' )
 	 </insert>
+	 
+	 
 	 
 	 <!-- SQL : SELECT ONE -->
 	 <select 	id="getProduct"	parameterType="string"	resultMap="productSelectMap">
@@ -32,6 +38,9 @@
 		FROM product 
 		WHERE prod_no = #{value}
 	 </select>
+	 
+	 
+	 
 	 
 	 <!-- SQL : UPDATE -->
 	 <update	id="updateProduct"	parameterType="product" >
@@ -46,27 +55,44 @@
 	   	WHERE prod_no = #{prodNo}
 	 </update>
 		 
+		 
 	<!-- SQL : SELECT LIST -->
 	<select  id="getProductList"  parameterType="search"	resultMap="productSelectMap">
 	  	SELECT *
 	  	FROM (	SELECT inner_table.* , ROWNUM AS row_seq
-	  					FROM		(	SELECT prod_no, prod_name, price , reg_date
-											FROM product
-											<if test="searchCondition != null">
-												<where>
-													<if test="searchCondition == 0 and searchKeyword !='' ">
-										 				prod_no '%'||#{searchKeyword}||'%'
-													</if>
-													<if test="searchCondition == 1 and searchKeyword !='' ">
-										 				prod_name '%'||#{searchKeyword}||'%'
-													</if>
-													<if test="searchCondition == 2 and searchKeyword !='' ">
-										 				price '%'||#{searchKeyword}||'%'
-													</if>
-													
-												</where>
+	  					FROM		(	<if test="menu == 'search'">
+	  									SELECT p.prod_no prod_no, p.prod_name prod_name, p.prod_detail prod_detail
+	  										, p.manufacture_day manufacture_day	, p.price price, p.image_file image_file
+	  										, p.reg_date reg_date
+											FROM product p
+										</if>
+										<if test="menu == 'manage'">
+										SELECT t.tran_no, p.prod_no, p.prod_name, p.prod_detail 
+	  										, p.manufacture_day, p.price, p.image_file 
+	  										, p.reg_date, NVL(p.tran_status_code,'0') 
+	  										FROM product p, transaction t
+										</if>
+										<where>
+											<if test="menu == 'manage'">
+											p.prod_no = t.prod_no(+)
 											</if>
-											ORDER BY prod_no ) inner_table
+											<if test="searchCondition != null">												
+												<choose>	
+													<when test="searchCondition == 0 and searchKeyword !='' ">
+										 				and p.prod_no like '%'||#{searchKeyword}||'%'
+													</when>
+													<when test="searchCondition == 1 and searchKeyword !='' ">
+										 				and p.prod_name like '%'||#{searchKeyword}||'%'
+													</when>
+													<when test="searchCondition == 2 and searchKeyword !='' ">
+										 				and p.price like '%'||#{searchKeyword}||'%'
+													</when>
+												</choose>											
+											</if>
+											
+										</where>
+										
+										) inner_table
 						WHERE ROWNUM &lt;= #{endRowNum} )
 		WHERE row_seq BETWEEN #{startRowNum} AND #{endRowNum} 
 	 </select>
@@ -84,23 +110,36 @@
 	<!-- SQL : SELECT ROW Count -->	 
 	 <select  id="getTotalCount"  parameterType="search"	 resultType="int">
 	  	SELECT COUNT(*)
-	  	FROM(	SELECT prod_no, prod_name, price , reg_Date
-						FROM product
-						<if test="searchCondition != null">
-							<where>
-								<if test="searchCondition == 0 and searchKeyword !='' ">
-						 		prod_no '%'||#{searchKeyword}||'%'
-								</if>
-								<if test="searchCondition == 1 and searchKeyword !='' ">
-						 		prod_name '%'||#{searchKeyword}||'%'
-								</if>
-								<if test="searchCondition == 2 and searchKeyword !='' ">
-						 		price '%'||#{searchKeyword}||'%'
-								</if>
-								
-							</where>
-						</if> ) countTable						
+	  	FROM(	<if test="menu == 'search'">
+	  				SELECT p.prod_no prod_no, p.prod_name, p.prod_detail, 
+	  				p.manufacture_day, p.price, p.image_file, p.reg_date 
+					FROM product p
+					</if>
+						<if test="menu == 'manage'">
+					SELECT p.prod_no, p.prod_name, p.prod_detail
+	  						, p.manufacture_day, p.price price, p.image_file
+	  						, p.reg_date, NVL(p.tran_status_code,'0') 
+	  				FROM product p, transaction t
+						</if>
+										<where>
+											<if test="menu == 'manage'">
+											p.prod_no = t.prod_no(+)
+											</if>
+											<if test="searchCondition != null">												
+												<choose>	
+													<when test="searchCondition == 0 and searchKeyword !='' ">
+										 				and p.prod_no like '%'||#{searchKeyword}||'%'
+													</when>
+													<when test="searchCondition == 1 and searchKeyword !='' ">
+										 				and p.prod_name like '%'||#{searchKeyword}||'%'
+													</when>
+													<when test="searchCondition == 2 and searchKeyword !='' ">
+										 				and p.price like '%'||#{searchKeyword}||'%'
+													</when>
+												</choose>											
+											</if>
+											
+										</where> ) countTable						
 	 </select>
 	 
-	
 </mapper>

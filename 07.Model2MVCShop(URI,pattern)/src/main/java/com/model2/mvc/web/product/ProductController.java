@@ -1,8 +1,17 @@
 package com.model2.mvc.web.product;
 
+import java.io.File;
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,15 +23,20 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.multipart.MultipartHttpServletRequest;
 
 import com.model2.mvc.common.Page;
 import com.model2.mvc.common.Search;
 
 import com.model2.mvc.service.domain.Product;
+import com.model2.mvc.service.domain.Purchase;
 import com.model2.mvc.service.product.ProductService;
+import com.model2.mvc.service.purchase.PurchaseService;
+import com.model2.mvc.service.purchase.impl.PurchaseServiceImpl;
 
 
-//==> »óÇ°°ü¸® Controller
+//==> ï¿½ï¿½Ç°ï¿½ï¿½ï¿½ï¿½ Controller
 @Controller
 @RequestMapping("/product/*") 
 public class ProductController {
@@ -32,16 +46,20 @@ public class ProductController {
 	@Qualifier("productServiceImpl")
 	
 	private ProductService productService;
+	@Qualifier("purchaseServiceImpl")
+	@Autowired
+	private PurchaseService purchaseService;
 	
-	//setter Method ±¸Çö ¾ÊÀ½
+	
+	//setter Method ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
 		
 	
 	public ProductController(){
 		System.out.println(this.getClass());
 	}
 	
-	//==> classpath:config/common.properties  ,  classpath:config/commonservice.xml ÂüÁ¶ ÇÒ°Í
-	//==> ¾Æ·¡ÀÇ µÎ°³¸¦ ÁÖ¼®À» Ç®¾î ÀÇ¹Ì¸¦ È®ÀÎ ÇÒ°Í
+	//==> classpath:config/common.properties  ,  classpath:config/commonservice.xml ï¿½ï¿½ï¿½ï¿½ ï¿½Ò°ï¿½
+	//==> ï¿½Æ·ï¿½ï¿½ï¿½ ï¿½Î°ï¿½ï¿½ï¿½ ï¿½Ö¼ï¿½ï¿½ï¿½ Ç®ï¿½ï¿½ ï¿½Ç¹Ì¸ï¿½ È®ï¿½ï¿½ ï¿½Ò°ï¿½
 	
 	@Value("#{commonProperties['pageUnit']}")
 	int pageUnit;
@@ -62,16 +80,15 @@ public class ProductController {
 	
 	@RequestMapping( value="addProduct", method=RequestMethod.POST )
 	//@RequestMapping("/addProduct.do")
-	public String addProduct( @ModelAttribute("product") Product product ) throws Exception {
+	public String addProduct( @ModelAttribute("product") Product product, HttpServletRequest request, HttpServletResponse response) throws Exception {
 
 		System.out.println("/addProduct.do");
 		//Business Logic
 		
-		product.setManuDate(product.getManuDate().replace("-", ""));
-		
+
 		productService.addProduct(product);
 		
-		
+
 		
 		return "forward:/product/addProduct.jsp";
 	}
@@ -86,7 +103,7 @@ public class ProductController {
 	
 		String page=null;
 		
-		// Model °ú View ¿¬°á
+		// Model ï¿½ï¿½ View ï¿½ï¿½ï¿½ï¿½
 		model.addAttribute("product", product);
 		
 
@@ -112,7 +129,7 @@ public class ProductController {
 		System.out.println("/updateProductView.do");
 		//Business Logic
 		Product product = productService.getProduct(prodNo);
-		// Model °ú View ¿¬°á
+		// Model ï¿½ï¿½ View ï¿½ï¿½ï¿½ï¿½
 		
 		
 		model.addAttribute("product", product);
@@ -140,7 +157,7 @@ public class ProductController {
 	
 	@RequestMapping( value="listProduct" )
 
-	public String listProduct( @ModelAttribute("search") Search search , Model model , HttpServletRequest request) throws Exception{
+	public String listProduct( @ModelAttribute("search") Search search ,@ModelAttribute("purchase") Purchase purchase, Model model , HttpServletRequest request) throws Exception{
 		
 		System.out.println("/product/listProduct : GET / POST");
 		
@@ -150,18 +167,125 @@ public class ProductController {
 		search.setPageSize(pageSize);
 		
 		
-		// Business logic ¼öÇà
+		// Business logic ï¿½ï¿½ï¿½ï¿½
 		Map<String , Object> map=productService.getProductList(search);
 		
 		Page resultPage = new Page( search.getCurrentPage(), ((Integer)map.get("totalCount")).intValue(), pageUnit, pageSize);
+		
+		String tranCode= purchase.getTranCode();
+		
 		System.out.println(resultPage);
 		
 		
-		// Model °ú View ¿¬°á
+		
+		System.out.println(tranCode);
+		
+		// Model ï¿½ï¿½ View ï¿½ï¿½ï¿½ï¿½
 		model.addAttribute("list", map.get("list"));
 		model.addAttribute("resultPage", resultPage);
 		model.addAttribute("search", search);
 		
+		
+		
 		return "forward:/product/listProduct.jsp";
 	}
-}
+	
+	
+		@RequestMapping("/product/updateTranCodeByProdAction")
+		//@RequestMapping("/updateTranCodeByProdAction.do")
+		public String updateTranCodeByProdAction( @RequestParam("prodNo") int prodNo, @RequestParam("tranCode") String tranCode, @ModelAttribute("product") Product product ) throws Exception{
+
+			System.out.println("/updateTranCodeByProdAction.do");
+			//Business Logic
+
+			PurchaseService purchaseService = new PurchaseServiceImpl();
+			Purchase purchase = purchaseService.getPurchase2(prodNo);
+			purchase.setTranCode(tranCode);
+			
+			purchaseService.updateTranCode(purchase);
+			
+			
+			
+			return "redirect:/product/listProduct?menu=manage";
+		}
+		
+		
+		
+		
+		
+		
+		/////////////////////////////////////////////////////////////////////
+		 @RequestMapping(value = "/fileUpload", method = RequestMethod.POST)
+		    public Map fileUpload(HttpServletRequest req, HttpServletResponse rep) { 
+		        //íŒŒì¼ì´ ì €ì¥ë  path ì„¤ì • 
+		        // String path = req.getSession().getServletContext().getRealPath("") + "\\resources";    // ì›¹í”„ë¡œì íŠ¸ ê²½ë¡œ ìœ„ì¹˜
+		        String path = req.getSession().getServletContext().getRealPath("/resources/");
+		        
+		        System.out.println("path : " + path);
+		        
+		        Map returnObject = new HashMap(); 
+		        try { 
+		            // MultipartHttpServletRequest ìƒì„± 
+		            MultipartHttpServletRequest mhsr = (MultipartHttpServletRequest) req; 
+		            Iterator iter = mhsr.getFileNames(); 
+		            MultipartFile mfile = null; 
+		            String fieldName = ""; 
+		            List resultList = new ArrayList(); 
+		            
+		            // ë””ë ˆí† ë¦¬ê°€ ì—†ë‹¤ë©´ ìƒì„± 
+		            File dir = new File(path); 
+		            if (!dir.isDirectory()) { 
+		                dir.mkdirs(); 
+		            } 
+		            
+		            // ê°’ì´ ë‚˜ì˜¬ë•Œê¹Œì§€ 
+		            while (iter.hasNext()) { 
+		                fieldName = (String) iter.next(); // ë‚´ìš©ì„ ê°€ì ¸ì™€ì„œ 
+		                mfile = mhsr.getFile(fieldName); 
+		                String origName; 
+		                origName = new String(mfile.getOriginalFilename().getBytes("8859_1"), "UTF-8"); //í•œê¸€êº ì§ ë°©ì§€ 
+		                
+		                System.out.println("origName: " + origName);
+		                // íŒŒì¼ëª…ì´ ì—†ë‹¤ë©´ 
+		                if ("".equals(origName)) {
+		                    continue; 
+		                } 
+		                
+		                // íŒŒì¼ ëª… ë³€ê²½(uuidë¡œ ì•”í˜¸í™”) 
+//		                String ext = origName.substring(origName.lastIndexOf('.')); // í™•ì¥ì 
+//		                String saveFileName = getUuid() + ext;
+		                String saveFileName = origName;
+		                
+		                System.out.println("saveFileName : " + saveFileName);
+		                
+		                // ì„¤ì •í•œ pathì— íŒŒì¼ì €ì¥ 
+		                File serverFile = new File(path + File.separator + saveFileName);
+		                mfile.transferTo(serverFile);
+		                
+		                Map file = new HashMap();
+		                file.put("origName", origName); file.put("sfile", serverFile);
+		                resultList.add(file);
+		            }
+		            
+		            returnObject.put("files", resultList); 
+		            returnObject.put("params", mhsr.getParameterMap()); 
+		            } catch (UnsupportedEncodingException e) { 
+		                // TODO Auto-generated catch block 
+		                e.printStackTrace(); 
+		            }catch (IllegalStateException e) { // TODO Auto-generated catch block 
+		                e.printStackTrace();
+		            } catch (IOException e) { // TODO Auto-generated catch block
+		                e.printStackTrace();
+		            }
+		        
+		            return null;
+		    }
+		    
+		    //uuidìƒì„±
+		    public static String getUuid() { 
+		        return UUID.randomUUID().toString().replaceAll("-", "");
+		    }
+		
+
+
+	}
