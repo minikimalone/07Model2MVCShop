@@ -1,25 +1,32 @@
 <%@ page contentType="text/html; charset=euc-kr" %>
+<%@ page pageEncoding="EUC-KR"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ page session="false" %>
 
-
+<!DOCTYPE html>
 <html>
 <head>
+	<meta charset="EUC-KR">
 <title>상품등록</title>
 
 <link rel="stylesheet" href="/css/admin.css" type="text/css">
 
+
+	<!-- CDN(Content Delivery Network) 호스트 사용 -->
+	<script src="http://code.jquery.com/jquery-2.1.4.min.js"></script>
 <script type="text/javascript" src="../javascript/calendar.js">
-</script>
+
 
 <script type="text/javascript">
-<!--
+
+
+
 function fncAddProduct(){
 	//Form 유효성 검증
- 	var name = document.detailForm.prodName.value;
-	var detail = document.detailForm.prodDetail.value;
-	var manuDate = document.detailForm.manuDate.value;
-	var price = document.detailForm.price.value;
+ 	var name = $("input[name='prodName']").val();
+	var detail = $("input[name='prodDetail']").val();
+	var manuDate =$("input[name='manuDate']").val();
+	var price = $("input[name='price']").val();
 
 	if(name == null || name.length<1){
 		alert("상품명은 반드시 입력하여야 합니다.");
@@ -37,15 +44,31 @@ function fncAddProduct(){
 		alert("가격은 반드시 입력하셔야 합니다.");
 		return;
 	}
-
-	document.detailForm.action='/product/addProduct';
-	document.detailForm.submit();
+	
+	$("form").attr("method" , "POST").attr("action" , "/product/addProduct").submit();
+	//document.detailForm.action='/product/addProduct';
+	//document.detailForm.submit();
 }
 
-function resetData(){
+
+
+/*============= jQuery 변경 주석처리 =============
+	function resetData(){
 	document.detailForm.reset();
 }
--->
+	}========================================	*/
+$(function() {
+	//==> DOM Object GET 3가지 방법 ==> 1. $(tagName) : 2.(#id) : 3.$(.className)
+	//==> 1 과 3 방법 조합 : $("tagName.className:filter함수") 사용함.	
+	 $( "td.ct_btnbg02:contains('취소')" ).on("click" , function() {
+			//Debug..
+			//alert(  $( "td.ct_btnbg02:contains('취소')" ).html() );
+			$("form")[0].reset();
+	});
+});	
+
+	
+	
 </script>
 </head>
 

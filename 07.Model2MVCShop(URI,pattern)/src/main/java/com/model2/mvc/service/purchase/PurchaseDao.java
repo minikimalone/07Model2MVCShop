@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.model2.mvc.common.Search;
+import com.model2.mvc.service.domain.Product;
 import com.model2.mvc.service.domain.Purchase;
 
 public interface PurchaseDao {
@@ -21,7 +22,10 @@ public interface PurchaseDao {
 	
 	public void updatePurchase(Purchase purchase) throws Exception;
 	
+	
+	
 	public void updateTranCode(Purchase purchase) throws Exception;
+	
 	
 	public int getTotalCount(String userId) throws Exception ;
 		

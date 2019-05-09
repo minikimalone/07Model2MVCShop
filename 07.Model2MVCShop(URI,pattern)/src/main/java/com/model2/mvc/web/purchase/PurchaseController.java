@@ -23,6 +23,7 @@ import com.model2.mvc.service.domain.User;
 import com.model2.mvc.service.user.UserService;
 import com.model2.mvc.service.product.ProductService;
 import com.model2.mvc.service.purchase.PurchaseService;
+import com.model2.mvc.service.purchase.impl.PurchaseServiceImpl;
 
 @Controller
 @RequestMapping("/purchase/*") 
@@ -127,11 +128,11 @@ public class PurchaseController {
 	}
 	
 	
-	@RequestMapping( value="updateTranCode", method=RequestMethod.POST )
+	@RequestMapping("/purchase/updateTranCodeListPurchase")
 	//@RequestMapping("/updateTranCode.do")
-	public String updateTranCode(@RequestParam("tranNo") int tranNo,@RequestParam("tranCode") String tranCode) throws Exception {
+	public String updateTranCodeListPurchase(@RequestParam("tranNo") int tranNo,@RequestParam("tranCode") String tranCode) throws Exception {
 		
-		System.out.println("updateTranCode.do");
+		System.out.println("updateTranCodeByTranNo");
 		
 		Purchase purchase = purchaseService.getPurchase(tranNo);
 		
@@ -143,6 +144,22 @@ public class PurchaseController {
 		
 	}
 	
+	@RequestMapping("/purchase/updateTranCodeListProduct")
+	//@RequestMapping("/updateTranCodeByProdAction.do")
+	public String updateTranCodeListProduct(@RequestParam("tranNo") int tranNo, @RequestParam("tranCode") String tranCode) throws Exception{
+
+		System.out.println("/updateTranCodeByProdNo");
+		//Business Logic
+
+
+		Purchase purchase = purchaseService.getPurchase(tranNo);
+		purchase.setTranCode(tranCode);
+		purchaseService.updateTranCode(purchase);
+	
+	
+		
+		return "redirect:/product/listProduct?menu=manage";
+	}
 	
 	@RequestMapping( value="listPurchase" )
 
@@ -190,4 +207,7 @@ public class PurchaseController {
 
 		return "forward:/purchase/listPurchase.jsp";
 	}
+	
+	
+	
 }

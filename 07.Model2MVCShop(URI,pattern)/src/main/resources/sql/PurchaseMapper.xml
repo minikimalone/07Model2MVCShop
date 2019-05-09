@@ -80,7 +80,6 @@
 		
 		
 		
-		
 	<select  id="getPurchaseList"  parameterType="map"	resultMap="purchaseSelectMap">
 		SELECT *
 	  	FROM (	SELECT inner_table.* , ROWNUM AS row_seq

@@ -16,7 +16,7 @@
 		<result property="fileName" 				column="image_file" 					jdbcType="VARCHAR" />
 		<result property="regDate" 			column="reg_date" 		jdbcType="DATE" />
 		<result property="prodTranCode" column="tran_status_code" jdbcType="VARCHAR"/>
-		
+		<result property="prodTranNo" column="tran_no" jdbcType="NUMERIC"/>
 		</resultMap>
 	
 	
@@ -24,9 +24,9 @@
 	<!-- SQL : INSERT -->
 	<insert 	id="addProduct"		parameterType="product" >
 	 	INSERT
-		INTO product (prod_no, prod_name , prod_detail , manufacture_day , price, image_file, reg_date, tran_status_code) 
+		INTO product (prod_no, prod_name , prod_detail , manufacture_day , price, image_file, reg_date) 
 		VALUES	 (seq_product_prod_no.nextval, #{prodName} , #{prodDetail} , #{manuDate:VARCHAR} , 
-							#{price} , #{fileName:VARCHAR} , SYSDATE, '0' )
+							#{price} , #{fileName:VARCHAR} , SYSDATE)
 	 </insert>
 	 
 	 
@@ -67,14 +67,13 @@
 											FROM product p
 										</if>
 										<if test="menu == 'manage'">
-										SELECT t.tran_no, p.prod_no, p.prod_name, p.prod_detail 
-	  										, p.manufacture_day, p.price, p.image_file 
-	  										, p.reg_date, NVL(p.tran_status_code,'0') 
+										SELECT t.tran_no, p.prod_no, p.prod_name, p.prod_detail, p.manufacture_day, p.price, p.image_file 
+	  										, p.reg_date, NVL(t.tran_status_code,'0') tran_status_code
 	  										FROM product p, transaction t
 										</if>
 										<where>
 											<if test="menu == 'manage'">
-											p.prod_no = t.prod_no(+)
+											t.prod_no=p.prod_no(+)
 											</if>
 											<if test="searchCondition != null">												
 												<choose>	
@@ -116,14 +115,13 @@
 					FROM product p
 					</if>
 						<if test="menu == 'manage'">
-					SELECT p.prod_no, p.prod_name, p.prod_detail
-	  						, p.manufacture_day, p.price price, p.image_file
-	  						, p.reg_date, NVL(p.tran_status_code,'0') 
-	  				FROM product p, transaction t
+					SELECT t.tran_no, p.prod_no, p.prod_name, p.prod_detail, p.manufacture_day, p.price, p.image_file 
+	  										, p.reg_date, NVL(t.tran_status_code,'0') tran_status_code
+	  										FROM product p, transaction t
 						</if>
 										<where>
 											<if test="menu == 'manage'">
-											p.prod_no = t.prod_no(+)
+											t.prod_no = p.prod_no(+)
 											</if>
 											<if test="searchCondition != null">												
 												<choose>	

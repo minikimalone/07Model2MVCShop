@@ -55,7 +55,8 @@ public class PurchaseDaoImpl implements PurchaseDao{
 		sqlSession.update("PurchaseMapper.updateTranCode", purchase);
 	}
 	
-
+	
+	
 	public List<Purchase> getPurchaseList(Search search,String userId) throws Exception{
 		Map<String, Object> map = new HashMap<String, Object>();
 		map.put("search", search );

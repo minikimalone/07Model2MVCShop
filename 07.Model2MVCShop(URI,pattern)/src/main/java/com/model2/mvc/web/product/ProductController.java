@@ -142,7 +142,7 @@ public class ProductController {
 	//@RequestMapping("/updateProduct.do")
 	public String updateProduct( @ModelAttribute("product") Product product ) throws Exception{
 
-		System.out.println("/updateProduct.do");
+		System.out.println("/updateProduct");
 		//Business Logic
 		
 		productService.updateProduct(product);
@@ -191,29 +191,27 @@ public class ProductController {
 	}
 	
 	
-		@RequestMapping("/product/updateTranCodeByProdAction")
-		//@RequestMapping("/updateTranCodeByProdAction.do")
-		public String updateTranCodeByProdAction( @RequestParam("prodNo") int prodNo, @RequestParam("tranCode") String tranCode, @ModelAttribute("product") Product product ) throws Exception{
-
-			System.out.println("/updateTranCodeByProdAction.do");
-			//Business Logic
-
-			PurchaseService purchaseService = new PurchaseServiceImpl();
-			Purchase purchase = purchaseService.getPurchase2(prodNo);
-			purchase.setTranCode(tranCode);
-			
-			purchaseService.updateTranCode(purchase);
-			
-			
-			
-			return "redirect:/product/listProduct?menu=manage";
-		}
+//		@RequestMapping("/product/updateTranCodeByProdAction")
+//		//@RequestMapping("/updateTranCodeByProdAction.do")
+//		public String updateTranCodeByProdAction( @RequestParam("prodNo") int prodNo, @RequestParam("tranCode") String tranCode, @ModelAttribute("product") Product product ) throws Exception{
+//
+//			System.out.println("/updateTranCodeByProdAction.do");
+//			//Business Logic
+//
+//			PurchaseService purchaseService = new PurchaseServiceImpl();
+//			Purchase purchase = purchaseService.getPurchase2(prodNo);
+//			purchase.setTranCode(tranCode);
+//			
+//			purchaseService.updateTranCode(purchase);
+//			
+//			
+//			
+//			return "redirect:/product/listProduct?menu=manage";
+//		}
 		
 		
 		
-		
-		
-		
+	
 		/////////////////////////////////////////////////////////////////////
 		 @RequestMapping(value = "/fileUpload", method = RequestMethod.POST)
 		    public Map fileUpload(HttpServletRequest req, HttpServletResponse rep) { 
