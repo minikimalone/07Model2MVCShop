@@ -49,9 +49,8 @@ function fncGetList(currentPage) {
 		</td>
 	</tr>
 </table>
-
-		</td>
-		
+<table width="100%" border="0" cellspacing="0" cellpadding="0" style="margin-top:10px;">
+	<tr>
 		<td align="right">
 			
 			<select name="searchCondition" class="ct_input_g" style="width:80px">
@@ -134,7 +133,7 @@ function fncGetList(currentPage) {
 		</c:if>	
 		
 		
-		<td align="left">${product.regDate}</td>
+		<td align="left">${product.price}</td>
 	
 	
 	

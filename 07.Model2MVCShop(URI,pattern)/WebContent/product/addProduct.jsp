@@ -11,6 +11,8 @@
 </head>
 
 <body bgcolor="#ffffff" text="#000000">
+<form name="detailForm" method="post" >
+
 
 <table width="100%" height="37" border="0" cellpadding="0" cellspacing="0">
 	<tr>
@@ -95,7 +97,7 @@
 			<table border="0" cellspacing="0" cellpadding="0">
 				<tr>
 					<td height="26">
-						<td class="ct_write01">${product.fileName}
+						<td class="ct_write01"><input type="file" name="file">
 					</td>
 				</tr>
 			</table>
@@ -135,6 +137,6 @@
 		</td>
 	</tr>
 </table>
-
+</form>
 </body>
 </html>

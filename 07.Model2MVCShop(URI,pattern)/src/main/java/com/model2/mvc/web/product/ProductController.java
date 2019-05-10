@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
@@ -19,6 +20,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -84,7 +86,7 @@ public class ProductController {
 
 		System.out.println("/addProduct.do");
 		//Business Logic
-		
+		product.setManuDate(product.getManuDate().substring(0,10).replace("-", ""));
 
 		productService.addProduct(product);
 		
@@ -93,9 +95,8 @@ public class ProductController {
 		return "forward:/product/addProduct.jsp";
 	}
 	
-	//@RequestMapping("/getProduct.do")
 	@RequestMapping( value="getProduct", method=RequestMethod.GET )
-	public String getProduct( @RequestParam("prodNo") int prodNo ,  @RequestParam("menu") String menu , Model model ) throws Exception {
+	public String getProduct( @RequestParam("prodNo") int prodNo ,  @RequestParam("menu") String menu , Model model, @CookieValue(value="history", required=false) Cookie cookie, HttpServletResponse response) throws Exception {
 		
 		System.out.println("/getProduct.do");
 		//Business Logic
@@ -103,10 +104,21 @@ public class ProductController {
 	
 		String page=null;
 		
-		// Model �� View ����
+		// Model 占쏙옙 View 占쏙옙占쏙옙
 		model.addAttribute("product", product);
 		
-
+		
+		if(cookie!=null) {
+			cookie.setValue(cookie.getValue()+","+Integer.toString(prodNo));
+		}else {
+		cookie= new Cookie("history", Integer.toString(prodNo));
+	}
+		cookie.setPath("/");
+		cookie.setMaxAge(60*60);
+		response.addCookie(cookie);
+		
+		
+		
 		if(menu.equals("manage")){
 		page = "forward:/product/updateProductView.jsp";
 		}else {
@@ -210,80 +222,80 @@ public class ProductController {
 //		}
 		
 		
-		
-	
-		/////////////////////////////////////////////////////////////////////
-		 @RequestMapping(value = "/fileUpload", method = RequestMethod.POST)
-		    public Map fileUpload(HttpServletRequest req, HttpServletResponse rep) { 
-		        //파일이 저장될 path 설정 
-		        // String path = req.getSession().getServletContext().getRealPath("") + "\\resources";    // 웹프로젝트 경로 위치
-		        String path = req.getSession().getServletContext().getRealPath("/resources/");
-		        
-		        System.out.println("path : " + path);
-		        
-		        Map returnObject = new HashMap(); 
-		        try { 
-		            // MultipartHttpServletRequest 생성 
-		            MultipartHttpServletRequest mhsr = (MultipartHttpServletRequest) req; 
-		            Iterator iter = mhsr.getFileNames(); 
-		            MultipartFile mfile = null; 
-		            String fieldName = ""; 
-		            List resultList = new ArrayList(); 
-		            
-		            // 디레토리가 없다면 생성 
-		            File dir = new File(path); 
-		            if (!dir.isDirectory()) { 
-		                dir.mkdirs(); 
-		            } 
-		            
-		            // 값이 나올때까지 
-		            while (iter.hasNext()) { 
-		                fieldName = (String) iter.next(); // 내용을 가져와서 
-		                mfile = mhsr.getFile(fieldName); 
-		                String origName; 
-		                origName = new String(mfile.getOriginalFilename().getBytes("8859_1"), "UTF-8"); //한글꺠짐 방지 
-		                
-		                System.out.println("origName: " + origName);
-		                // 파일명이 없다면 
-		                if ("".equals(origName)) {
-		                    continue; 
-		                } 
-		                
-		                // 파일 명 변경(uuid로 암호화) 
-//		                String ext = origName.substring(origName.lastIndexOf('.')); // 확장자 
-//		                String saveFileName = getUuid() + ext;
-		                String saveFileName = origName;
-		                
-		                System.out.println("saveFileName : " + saveFileName);
-		                
-		                // 설정한 path에 파일저장 
-		                File serverFile = new File(path + File.separator + saveFileName);
-		                mfile.transferTo(serverFile);
-		                
-		                Map file = new HashMap();
-		                file.put("origName", origName); file.put("sfile", serverFile);
-		                resultList.add(file);
-		            }
-		            
-		            returnObject.put("files", resultList); 
-		            returnObject.put("params", mhsr.getParameterMap()); 
-		            } catch (UnsupportedEncodingException e) { 
-		                // TODO Auto-generated catch block 
-		                e.printStackTrace(); 
-		            }catch (IllegalStateException e) { // TODO Auto-generated catch block 
-		                e.printStackTrace();
-		            } catch (IOException e) { // TODO Auto-generated catch block
-		                e.printStackTrace();
-		            }
-		        
-		            return null;
-		    }
-		    
-		    //uuid생성
-		    public static String getUuid() { 
-		        return UUID.randomUUID().toString().replaceAll("-", "");
-		    }
-		
+//		
+//	
+//		/////////////////////////////////////////////////////////////////////
+//		 @RequestMapping(value = "/fileUpload", method = RequestMethod.POST)
+//		    public Map fileUpload(HttpServletRequest req, HttpServletResponse rep) { 
+//		        //파일이 저장될 path 설정 
+//		        // String path = req.getSession().getServletContext().getRealPath("") + "\\resources";    // 웹프로젝트 경로 위치
+//		        String path = req.getSession().getServletContext().getRealPath("/resources/");
+//		        
+//		        System.out.println("path : " + path);
+//		        
+//		        Map returnObject = new HashMap(); 
+//		        try { 
+//		            // MultipartHttpServletRequest 생성 
+//		            MultipartHttpServletRequest mhsr = (MultipartHttpServletRequest) req; 
+//		            Iterator iter = mhsr.getFileNames(); 
+//		            MultipartFile mfile = null; 
+//		            String fieldName = ""; 
+//		            List resultList = new ArrayList(); 
+//		            
+//		            // 디레토리가 없다면 생성 
+//		            File dir = new File(path); 
+//		            if (!dir.isDirectory()) { 
+//		                dir.mkdirs(); 
+//		            } 
+//		            
+//		            // 값이 나올때까지 
+//		            while (iter.hasNext()) { 
+//		                fieldName = (String) iter.next(); // 내용을 가져와서 
+//		                mfile = mhsr.getFile(fieldName); 
+//		                String origName; 
+//		                origName = new String(mfile.getOriginalFilename().getBytes("8859_1"), "UTF-8"); //한글꺠짐 방지 
+//		                
+//		                System.out.println("origName: " + origName);
+//		                // 파일명이 없다면 
+//		                if ("".equals(origName)) {
+//		                    continue; 
+//		                } 
+//		                
+//		                // 파일 명 변경(uuid로 암호화) 
+////		                String ext = origName.substring(origName.lastIndexOf('.')); // 확장자 
+////		                String saveFileName = getUuid() + ext;
+//		                String saveFileName = origName;
+//		                
+//		                System.out.println("saveFileName : " + saveFileName);
+//		                
+//		                // 설정한 path에 파일저장 
+//		                File serverFile = new File(path + File.separator + saveFileName);
+//		                mfile.transferTo(serverFile);
+//		                
+//		                Map file = new HashMap();
+//		                file.put("origName", origName); file.put("sfile", serverFile);
+//		                resultList.add(file);
+//		            }
+//		            
+//		            returnObject.put("files", resultList); 
+//		            returnObject.put("params", mhsr.getParameterMap()); 
+//		            } catch (UnsupportedEncodingException e) { 
+//		                // TODO Auto-generated catch block 
+//		                e.printStackTrace(); 
+//		            }catch (IllegalStateException e) { // TODO Auto-generated catch block 
+//		                e.printStackTrace();
+//		            } catch (IOException e) { // TODO Auto-generated catch block
+//		                e.printStackTrace();
+//		            }
+//		        
+//		            return null;
+//		    }
+//		    
+//		    //uuid생성
+//		    public static String getUuid() { 
+//		        return UUID.randomUUID().toString().replaceAll("-", "");
+//		    }
+//		
 
 
 	}
